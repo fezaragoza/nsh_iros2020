@@ -189,9 +189,9 @@ WallFollower::WallFollower(int argc, char** argv) : _drive_pub(), _laser(), _car
             speed     : 5.0
         };
     csv_count  = 0;
-    _drive_pub = nh.advertise<AckermannDriveStamped>("drive", 1);
-    _laser_sub = nh.subscribe("scan", 1, &WallFollower::_scanCallback, this);
-    _odom_sub  = nh.subscribe("odom", 1, &WallFollower::_odomCallback, this);
+    _drive_pub = nh.advertise<AckermannDriveStamped>("ego_nshmx/drive", 1);
+    _laser_sub = nh.subscribe("ego_nshmx/scan", 1, &WallFollower::_scanCallback, this);
+    _odom_sub  = nh.subscribe("ego_nshmx/odom", 1, &WallFollower::_odomCallback, this);
     _timer0    = nh.createTimer(ros::Duration(control.dt), &WallFollower::_timer0Callback, this);
     // _timer1    = nh.createTimer(ros::Duration(CSV_RATE), &WallFollower::_timer1Callback, this);
     fout.open("./src/ros_wall_follower/src/odom_data_vegas_cpp.csv", std::ios::out);
