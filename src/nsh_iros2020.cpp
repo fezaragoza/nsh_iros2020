@@ -162,7 +162,7 @@ public:
 
 WallFollower::WallFollower(int argc, char** argv) : _drive_pub(), _laser(), _car(), _odom()
 {
-    std::string node_name = "dummy_agent";
+    std::string node_name = "nsh_agent";
     ros::init(argc, argv, node_name);
     ros::NodeHandle nh;
     memset(&odom, 0, sizeof(odom));
