@@ -171,13 +171,13 @@ WallFollower::WallFollower(int argc, char** argv) : _drive_pub(), _laser(), _car
     memset(&laser, 0, sizeof(laser));
     control =
         {
-            dt       : 0.005,
+            dt       : 0.01,
             setpoint : 0.1,
             error    : {0.0, 0.0},
             gains    : {
-                1.70,   // Kp 1.2
-                0.00,   // Ki 0.0025
-                0.40    // Kd 0.0005
+                1.900,   // Kp 1.2
+                0.001,   // Ki 0.0025
+                0.400    // Kd 0.0005
                 }
         };
     car =
@@ -323,14 +323,14 @@ float32_t WallFollower::calculateControl(float32_t centroid)
 
     control.error[1] = control.error[0];
 
-    return fmin(fmax(-0.60, U), 0.60);
+    return fmin(fmax(-0.40, U), 0.40);
 }
 
 void WallFollower::takeAction(void)
 {
     car.steer.output = calculateControl(laser.centroid.normalized);
-    // car.speed = 5.0 - (std::abs(car.steer.output) * 3.0/1.25);
-    car.speed = std::abs(6.0 - (std::abs(laser.centroid_diff)));
+    car.speed = 8.5 - (std::abs(car.steer.output) * 6.0/0.40);
+    // car.speed = std::abs(6.0 - (std::abs(laser.centroid_diff)));
     setCarMovement(car.steer.output, 0.0, car.speed, 0.0, 0.0);
     publishAckermannMsg();
     // getWaypoints();
