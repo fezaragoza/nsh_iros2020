@@ -156,8 +156,8 @@ public:
     unsigned int              csv_count;
     const ranges_index_s      scan_points[NUM_REGIONS] =
     {
-        {140, 539}, // 0 - DER
-        {540, 940}  // 1 - IZQ
+        {180, 539}, // 0 - DER
+        {540, 900}  // 1 - IZQ
     };
     
 };
@@ -285,8 +285,12 @@ void WallFollower::getScanCentroid(void)
     auto end_iter       = next(laser.ranges.begin(), scan_points[IZQ].end);
     unsigned int index  = scan_points[DER].begin;
     // [&] "Captures" external variables as reference into the lambda functions. Can pass [&index] alone, or any other variable
-    std::for_each(start_iter, end_iter, [&] (const float32_t value)
+    std::for_each(start_iter, end_iter, [&] (float32_t value)
     {
+        if (value >= 9.0)
+        {
+            value = 9.0;
+        }
         laser.centroid.sum_moment += (index * value);
         laser.centroid.sum_x += value;
         ++index; 
@@ -319,7 +323,7 @@ float32_t WallFollower::calculateControl(float32_t centroid)
 
     control.error[1] = control.error[0];
 
-    return fmin(fmax(-0.65, U), 0.65);
+    return fmin(fmax(-0.60, U), 0.60);
 }
 
 void WallFollower::takeAction(void)
