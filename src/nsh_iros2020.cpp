@@ -53,6 +53,8 @@ typedef struct laser_read_S
     float32_t min_ranges[5];
     std::vector<float32_t> ranges;
     centroid_s centroid;
+    float32_t centroid_st[2];
+    float32_t centroid_diff;
 }laser_read_s;
 
 /*
@@ -169,8 +171,8 @@ WallFollower::WallFollower(int argc, char** argv) : _drive_pub(), _laser(), _car
     memset(&laser, 0, sizeof(laser));
     control =
         {
-            dt       : 0.01,
-            setpoint : 1.5,
+            dt       : 0.005,
+            setpoint : 0.1,
             error    : {0.0, 0.0},
             gains    : {
                 1.70,   // Kp 1.2
@@ -194,7 +196,7 @@ WallFollower::WallFollower(int argc, char** argv) : _drive_pub(), _laser(), _car
     _odom_sub  = nh.subscribe("ego_nshmx/odom", 1, &WallFollower::_odomCallback, this);
     _timer0    = nh.createTimer(ros::Duration(control.dt), &WallFollower::_timer0Callback, this);
     // _timer1    = nh.createTimer(ros::Duration(CSV_RATE), &WallFollower::_timer1Callback, this);
-    // fout.open("./src/ros_wall_follower/src/odom_data_vegas_cpp.csv", std::ios::out);
+    // fout.open("./ros_wall_follower/src/odom_data_vegas_cpp.csv", std::ios::out);
 }
 
 WallFollower::~WallFollower()
@@ -300,12 +302,15 @@ void WallFollower::getScanCentroid(void)
     laser.centroid.x = laser.centroid.sum_moment / laser.centroid.sum_x;
     // Normalize centroid
     laser.centroid.normalized = ((laser.centroid.x / 400) - 1.35);
+    laser.centroid_st[0] = laser.centroid.x;
+    laser.centroid_diff = laser.centroid_st[0] - laser.centroid_st[1];
+    laser.centroid_st[1] = laser.centroid_st[0];
 }
 
 float32_t WallFollower::calculateControl(float32_t centroid)
 {
     // control.error[0] = control.setpoint - laser.min_ranges[DER];
-    control.setpoint = 0; // scan_points[1].begin;
+    // control.setpoint = 0.1; // scan_points[1].begin;
     control.error[0] = centroid - control.setpoint;
     float32_t Up = control.gains.Kp * control.error[0];
     float32_t Ui = control.gains.Ki * control.dt * (control.error[0] - control.error[1]) / 2;
@@ -314,13 +319,14 @@ float32_t WallFollower::calculateControl(float32_t centroid)
 
     control.error[1] = control.error[0];
 
-    return fmin(fmax(-1.0, U), 1.0);
+    return fmin(fmax(-0.65, U), 0.65);
 }
 
 void WallFollower::takeAction(void)
 {
     car.steer.output = calculateControl(laser.centroid.normalized);
-    car.speed = 5.0 - (std::abs(car.steer.output) * 3.0/1.25);
+    // car.speed = 5.0 - (std::abs(car.steer.output) * 3.0/1.25);
+    car.speed = std::abs(6.0 - (std::abs(laser.centroid_diff)));
     setCarMovement(car.steer.output, 0.0, car.speed, 0.0, 0.0);
     publishAckermannMsg();
     // getWaypoints();
