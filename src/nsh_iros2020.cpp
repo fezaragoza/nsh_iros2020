@@ -194,12 +194,12 @@ WallFollower::WallFollower(int argc, char** argv) : _drive_pub(), _laser(), _car
     _odom_sub  = nh.subscribe("ego_nshmx/odom", 1, &WallFollower::_odomCallback, this);
     _timer0    = nh.createTimer(ros::Duration(control.dt), &WallFollower::_timer0Callback, this);
     // _timer1    = nh.createTimer(ros::Duration(CSV_RATE), &WallFollower::_timer1Callback, this);
-    fout.open("./src/ros_wall_follower/src/odom_data_vegas_cpp.csv", std::ios::out);
+    // fout.open("./src/ros_wall_follower/src/odom_data_vegas_cpp.csv", std::ios::out);
 }
 
 WallFollower::~WallFollower()
 {
-    fout.close();
+    // fout.close();
 }
 
 void WallFollower::_scanCallback(const sensor_msgs::LaserScan &msg)
@@ -320,13 +320,13 @@ float32_t WallFollower::calculateControl(float32_t centroid)
 void WallFollower::takeAction(void)
 {
     car.steer.output = calculateControl(laser.centroid.normalized);
-    car.speed = 5.0 - (std::abs(car.steer.output) * 3.0/1.22);
+    car.speed = 5.0 - (std::abs(car.steer.output) * 3.0/1.25);
     setCarMovement(car.steer.output, 0.0, car.speed, 0.0, 0.0);
     publishAckermannMsg();
-    getWaypoints();
+    // getWaypoints();
 
-    ROS_INFO("Centroid: %f, Setpoint: %d, Steer: %f, Speed: %f, Error: %f", laser.centroid.normalized, scan_points[1].begin,\
-                _car.drive.steering_angle, _car.drive.speed, control.error[0]);
+    // ROS_INFO("Centroid: %f, Setpoint: %d, Steer: %f, Speed: %f, Error: %f", laser.centroid.normalized, scan_points[1].begin,\
+    //             _car.drive.steering_angle, _car.drive.speed, control.error[0]);
 }
 
 void WallFollower::setCarMovement(float32_t steering_angle, float32_t steering_angle_velocity, \
