@@ -3,7 +3,9 @@
   
 <!-- <include file="$(find f1tenth_gym_ros)/launch/gym_bridge_host.launch"/> -->
 <!-- <node pkg="rviz" type="rviz" name="rviz" args="-d /gym_bridge.rviz" output="screen"/> -->
-<node pkg="nsh_iros2020" type="nsh_iros2020_node" name="nsh_agent" output="screen"/>
+
+<!-- <node pkg="nsh_iros2020" type="nsh_iros2020_node" name="nsh_agent" output="screen"/> -->
+<node pkg="nsh_iros2020" type="nsh_iros2020_node.py" name="nsh_agent" output="screen"/>
 
 
     </launch>
