@@ -156,8 +156,8 @@ public:
     unsigned int              csv_count;
     const ranges_index_s      scan_points[NUM_REGIONS] =
     {
-        {200, 539}, // 0 - DER
-        {540, 880}  // 1 - IZQ
+        {280, 539}, // 0 - DER
+        {540, 860}  // 1 - IZQ
     };
     
 };
@@ -188,7 +188,7 @@ WallFollower::WallFollower(int argc, char** argv) : _drive_pub(), _laser(), _car
             },
             wheelbase : 0.40,
             track     : 0.28,
-            speed     : 5.0
+            speed     : 10.0
         };
     csv_count  = 0;
     _drive_pub = nh.advertise<AckermannDriveStamped>("ego_nshmx/drive", 1);
@@ -323,13 +323,13 @@ float32_t WallFollower::calculateControl(float32_t centroid)
 
     control.error[1] = control.error[0];
 
-    return fmin(fmax(-0.40, U), 0.40);
+    return fmin(fmax(-0.30, U), 0.30);
 }
 
 void WallFollower::takeAction(void)
 {
     car.steer.output = calculateControl(laser.centroid.normalized);
-    car.speed = 8.5 - (std::abs(car.steer.output) * 7.0/0.40);
+    car.speed = 10.1 - (std::abs(car.steer.output) * 8.5/0.30);
     // car.speed = std::abs(6.0 - (std::abs(laser.centroid_diff)));
     setCarMovement(car.steer.output, 0.0, car.speed, 0.0, 0.0);
     publishAckermannMsg();
