@@ -156,8 +156,8 @@ public:
     unsigned int              csv_count;
     const ranges_index_s      scan_points[NUM_REGIONS] =
     {
-        {280, 539}, // 0 - DER
-        {540, 860}  // 1 - IZQ
+        {310, 539}, // 0 - DER
+        {540, 800}  // 1 - IZQ
     };
     
 };
@@ -172,12 +172,12 @@ WallFollower::WallFollower(int argc, char** argv) : _drive_pub(), _laser(), _car
     control =
         {
             dt       : 0.01,
-            setpoint : 0.08,
+            setpoint : 0.065,
             error    : {0.0, 0.0},
             gains    : {
-                1.700,   // Kp 1.2
+                1.500,   // Kp 1.2
                 0.001,   // Ki 0.0025
-                0.400    // Kd 0.0005
+                0.350    // Kd 0.0005
                 }
         };
     car =
@@ -287,9 +287,9 @@ void WallFollower::getScanCentroid(void)
     // [&] "Captures" external variables as reference into the lambda functions. Can pass [&index] alone, or any other variable
     std::for_each(start_iter, end_iter, [&] (float32_t value)
     {
-        if (value >= 8.50)
+        if (value >= 9.0)
         {
-            value = 8.50;
+            value = 9.0;
         }
         laser.centroid.sum_moment += (index * value);
         laser.centroid.sum_x += value;
@@ -323,13 +323,13 @@ float32_t WallFollower::calculateControl(float32_t centroid)
 
     control.error[1] = control.error[0];
 
-    return fmin(fmax(-0.30, U), 0.30);
+    return fmin(fmax(-0.25, U), 0.25);
 }
 
 void WallFollower::takeAction(void)
 {
     car.steer.output = calculateControl(laser.centroid.normalized);
-    car.speed = 10.1 - (std::abs(car.steer.output) * 8.5/0.30);
+    car.speed = 10.1 - (std::abs(car.steer.output) * 8.7/0.25);
     // car.speed = std::abs(6.0 - (std::abs(laser.centroid_diff)));
     setCarMovement(car.steer.output, 0.0, car.speed, 0.0, 0.0);
     publishAckermannMsg();
