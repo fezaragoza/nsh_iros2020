@@ -157,7 +157,7 @@ public:
     const ranges_index_s      scan_points[NUM_REGIONS] =
     {
         {310, 539}, // 0 - DER
-        {540, 800}  // 1 - IZQ
+        {540, 805}  // 1 - IZQ
     };
     
 };
@@ -172,10 +172,10 @@ WallFollower::WallFollower(int argc, char** argv) : _drive_pub(), _laser(), _car
     control =
         {
             dt       : 0.01,
-            setpoint : 0.065,
+            setpoint : 0.072,
             error    : {0.0, 0.0},
             gains    : {
-                1.500,   // Kp 1.2
+                1.400,   // Kp 1.2
                 0.001,   // Ki 0.0025
                 0.350    // Kd 0.0005
                 }
@@ -323,13 +323,13 @@ float32_t WallFollower::calculateControl(float32_t centroid)
 
     control.error[1] = control.error[0];
 
-    return fmin(fmax(-0.25, U), 0.25);
+    return fmin(fmax(-0.30, U), 0.30);
 }
 
 void WallFollower::takeAction(void)
 {
     car.steer.output = calculateControl(laser.centroid.normalized);
-    car.speed = 10.1 - (std::abs(car.steer.output) * 8.7/0.25);
+    car.speed = 9.7 - (std::abs(car.steer.output) * 8.6/0.30);
     // car.speed = std::abs(6.0 - (std::abs(laser.centroid_diff)));
     setCarMovement(car.steer.output, 0.0, car.speed, 0.0, 0.0);
     publishAckermannMsg();
